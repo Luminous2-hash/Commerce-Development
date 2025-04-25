@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commerce {% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static "css/mvp.css" %}">
+    <link rel="stylesheet" href="{% static "css/styles.css" %}">
+</head>
+<body>
+
+    <header>
+        <!-- NavBar -->
+        <nav id="main-nav">
+            <a href="/" style="text-decoration: none;"><h1>Commerce</h1></a>
+            <ul>
+                <li>Menu Item 1</li>
+                <li><a href="">Menu Item 2</a></li>
+                <li><a href="">Profile</a></li>
+            </ul>
+        </nav>
+
+        {% include 'alert.html'%}
+        
+    </header>
+    
+    <main>
+        {% block content %}
+            
+        {% endblock content %}
+    </main>
+
+</body>
+</body>
+</html>

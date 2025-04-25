@@ -17,8 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Required Libraries to Serve Uploads
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('verify/', include("verify.urls")),
+    path('accounts/', include("django.contrib.auth.urls")),
     path('auctions/', include("auctions.urls")),
 ]
+
+
+# Handling URL's for Uploaded Contents
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+ 

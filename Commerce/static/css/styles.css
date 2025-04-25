@@ -1,0 +1,39 @@
+/* Generic Alert Messages */
+.alert {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: large;
+    text-align: center;
+    color: #000000;
+}
+
+/* Error Messages */
+.alert-error {
+background-color: #f44336;
+border-color: #d32f2f;
+}
+
+/* Warning Messages */
+.alert-warning {
+background-color: #ff9800;
+border-color: #ef6c00;
+}
+
+/* Info Messages */
+.alert-info {
+background-color: #2196f3;
+border-color: #0d80d7;
+}
+
+/* Success Messages */
+.alert-success {
+background-color: #4caf50;
+border-color: #388e3c;
+}
+
+/* compatibility with Messages */
+#main-nav {
+    margin-bottom: 0px;
+}
