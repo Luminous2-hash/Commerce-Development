@@ -128,3 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Uploads Directory Configuration
 MEDIA_ROOT = BASE_DIR.parent / "media/commerce/uploads"
 MEDIA_URL = '/media/'
+
+# LogIn Redirect
+LOGIN_REDIRECT_URL = 'index'

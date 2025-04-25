@@ -20,7 +20,7 @@ class UserRegisterForm(UserCreationForm):
         required=True,
         help_text="Max Character Is 30",
     )
-    email = forms.EmailField(max_length=30, required=True)
+    email = forms.EmailField(max_length=30, required=True, help_text="name@example.com")
 
     class Meta:
         model = User

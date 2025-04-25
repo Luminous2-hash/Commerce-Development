@@ -16,7 +16,6 @@ def register(request):
 
             # Loging in the user
             login(request, user)
-
             return redirect("index")
 
     else:

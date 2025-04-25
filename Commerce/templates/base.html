@@ -18,10 +18,39 @@
             <ul>
                 <li>Menu Item 1</li>
                 <li><a href="">Menu Item 2</a></li>
+                
+                <!-- Nav Profile -->
                 <li>
-                    {% if request.user %}
-                        hello {{ request.user.first_name }}
+                    {% if user.is_authenticated %}
+                        {{ user.first_name }}'s Profile
+                        
+                        <!-- Functionalities -->
+                        <ul>
+
+                            <!-- Profile Picture -->
+                            <li>
+                                <section>
+                                    <img src="{{user.userprofile.avatar.url}}" alt="" height="100em">
+                                </section>
+                            </li>
+
+                            <!-- LogOut Button -->
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" id="nav-profile">
+                                    {% csrf_token %}
+                                    <button>LogOut</button>
+                                </form>
+                            </li>
+
+                        </ul>
+                    
+                    <!-- Log In -->
+                    {% else %}
+                        <a href="{% url 'login' %}">LogIn</a>
+                        &VerticalSeparator;
+                        <a href="{% url 'register' %}">register</a>
                     {% endif %}
+
                 </li>
             </ul>
         </nav>
@@ -31,11 +60,19 @@
     </header>
     
     <main>
-        {% block content %}
-            
-        {% endblock content %}
+        {% block content %}{% endblock content %}
     </main>
 
+    <footer>
+        <hr>
+        <p>
+            <small>
+                <address>
+                    Written by <a href="mailto:amirsalehi1382@outlook.com">Amir Salehi</a>
+                </address>
+            </small>
+        </p>
+    </footer>
 </body>
 </body>
 </html>
