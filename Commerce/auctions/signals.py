@@ -10,12 +10,8 @@ from django.dispatch import receiver
 def userprofile_creator(sender, **kwargs):
     
     # Prevents Creating UserProfile from fixture.
-    if kwargs['created'] and not kwargs['raw']:
-        user = kwargs['instance']
-    
-    try:
-        # Checks For UserProfile existance
-        # DjangoAdmin May Created Before
-        UserProfile.objects.get(user=user)
-    except UserProfile.DoesNotExist:
-        UserProfile.objects.create(user=user)
+    if kwargs.get('created') and not kwargs.get('raw'):
+        user = kwargs.get('instance')
+
+        # Creates UserProfile If Not Created Yet
+        UserProfile.objects.get_or_create(user=user)

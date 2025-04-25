@@ -14,11 +14,15 @@
     <header>
         <!-- NavBar -->
         <nav id="main-nav">
-            <a href="/" style="text-decoration: none;"><h1>Commerce</h1></a>
+            <a href="{% url 'index' %}" style="text-decoration: none;"><h1>Commerce</h1></a>
             <ul>
                 <li>Menu Item 1</li>
                 <li><a href="">Menu Item 2</a></li>
-                <li><a href="">Profile</a></li>
+                <li>
+                    {% if request.user %}
+                        hello {{ request.user.first_name }}
+                    {% endif %}
+                </li>
             </ul>
         </nav>
 
