@@ -60,12 +60,12 @@ class Auction(models.Model):
 
     # Relations
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    top_bid = models.ForeignKey("Bid", blank=True, null=True, on_delete=models.SET_NULL)
+    top_bid = models.ForeignKey("Bid", blank=True, null=True, on_delete=models.SET_NULL, related_name="auction_top_bid")
         
 
     class Meta:
         """Meta definition for Auction."""
-        ordering = ("date")
+        ordering = ("date",)
         
         verbose_name = "Auction"
         verbose_name_plural = "Auctions"
@@ -95,7 +95,7 @@ class Bid(models.Model):
     
     class Meta:
         '''Meta definition for Bid.'''
-        ordering = ("price")
+        ordering = ("price",)
 
         verbose_name = 'Bid'
         verbose_name_plural = 'Bids'
@@ -120,7 +120,7 @@ class Comment(models.Model):
     
     class Meta:
         '''Meta definition for Comment.'''
-        ordering = ("date")
+        ordering = ("date",)
 
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
