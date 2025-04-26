@@ -1,10 +1,16 @@
 from django.contrib import admin
 
-# from auctions.models import UserProfile, Auction, Bid, Comment
+from auctions.models import UserProfile, Auction, Bid, Comment
 
-# # Auction
-# class AuctionAdmin(admin.ModelAdmin):
-#     list_display = ("date", "name", "price", "status", "category")
+@admin.register(Auction)
+class AuctionAdmin(admin.ModelAdmin):
+    list_display = ("date", "name", "price", "status", "category")
+
+@admin.register(Bid)    
+class BidAdmin(admin.ModelAdmin):
+    list_display = ("date", "bidder", "auction")
     
-# class BidAdmin(admin.ModelAdmin):
-#     list_display = ("")
+@admin.register(Comment)    
+class Comment(admin.ModelAdmin):
+    list_display = ("date", "commenter", "auction")
+    

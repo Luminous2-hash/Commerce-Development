@@ -22,7 +22,9 @@
                 <!-- Nav Profile -->
                 <li>
                     {% if user.is_authenticated %}
-                        {{ user.first_name }}'s Profile
+                        <a href="{% url 'userprofile' %}">
+                            {{ user.first_name }}'s Profile
+                        </a>
                         
                         <!-- Functionalities -->
                         <ul>
@@ -30,13 +32,19 @@
                             <!-- Profile Picture -->
                             <li>
                                 <section>
-                                    <img src="{{user.userprofile.avatar.url}}" alt="" height="100em">
+                                    <img src="{{user.userprofile.avatar.url}}" alt="" height="100px">
+                                </section>
+                            </li>
+
+                            <li>
+                                <section>
+                                    {{ user.first_name }} {{ user.last_name }}
                                 </section>
                             </li>
 
                             <!-- LogOut Button -->
                             <li>
-                                <form action="{% url 'logout' %}" method="post" id="nav-profile">
+                                <form action="{% url 'logout' %}" method="post" style="text-align: center;">
                                     {% csrf_token %}
                                     <button>LogOut</button>
                                 </form>
@@ -73,6 +81,5 @@
             </small>
         </p>
     </footer>
-</body>
 </body>
 </html>

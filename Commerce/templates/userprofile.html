@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section >
+    <form action="" method="post" enctype="multipart/form-data" style="text-align: center;">
+        <img src="{{ user.userprofile.avatar.url }}" alt="Avatar" height="200px">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</section>
+{% endblock content %}

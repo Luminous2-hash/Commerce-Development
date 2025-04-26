@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 
     # Specs
     avatar = models.ImageField(default="default.png", upload_to="profile_images")
-    bio = models.TextField(max_length=3000, blank=True)
+    bio = models.CharField(max_length=300, blank=True)
 
     # Personal Contents
     watch_list = models.ManyToManyField("Auction", blank=True)

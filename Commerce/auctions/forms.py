@@ -5,6 +5,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+# Auctions's Models
+from auctions.models import UserProfile
+
 
 # User Register Form
 class UserRegisterForm(UserCreationForm):
@@ -30,3 +33,16 @@ class UserRegisterForm(UserCreationForm):
             "username",
             "email",
         )
+
+
+UserProfileForm = forms.modelform_factory(
+    UserProfile,
+    fields=("avatar", "bio"),
+    widgets={
+        "avatar": forms.widgets.FileInput(attrs={"accept": "image/*"}),
+        "bio": forms.widgets.Textarea(attrs={"rows":"6", "cols":"30"})
+    },
+    labels={
+        "avatar": "Edit Avatar"
+    }
+)

@@ -16,14 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
-# Required Libraries to Serve Uploads
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Views
+from auctions.views import register, userprofile
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
     path('accounts/', include("django.contrib.auth.urls")),
+    path("accounts/register/", register, name="register"),
+    path("accounts/userprofile/", userprofile, name="userprofile"),
+    
     path('auctions/', include("auctions.urls")),
 ]
 
