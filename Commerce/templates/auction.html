@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ block.super }}: {{ auction.name }}
+{% endblock title %}
+
+{% block content %}
+    <section style="display: flex; gap: 20px; align-items: flex-start;">
+        <!-- Picture on the left -->
+        <aside style="text-align: center;">
+            <img
+                src="{{ auction.picture.url }}"
+                alt="{{ auction.name }}'s picture"
+                style="max-width: 250px; max-height: 300px; object-fit: contain;"
+            >
+        </aside>
+
+        <!-- Specs and Details on the right -->
+        <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>
+                    {{ auction.name }} <sup>{{ auction.get_status_display }}</sup>
+                </h2>
+                {% if auction.owner == user %}
+                    <a href="{% url 'edit_auction' auction.id %}">
+                        <button>Edit</button>
+                    </a>
+                {% endif %}
+            </div>
+            <p>
+                <small><strong>Price:</strong></small> ${{ auction.price|floatformat:2 }}<br>
+                <small><strong>Category:</strong></small> {{ auction.get_category_display }}
+            </p>
+            <p>
+                <em>Description:</em><br>
+                <b>{{ auction.description }}</b>
+            </p>
+        </div>
+    </section>
+{% endblock content %}

@@ -1,0 +1,38 @@
+    <hr style="margin: 0; padding: 0;">
+    <p style="text-align: center;">
+        <!-- Previous Page -->
+        <!-- Next Page -->
+        {% if page.has_previous %}
+        <a href="?page={{ page.previous_page_number }}&per_page_number={{ page.paginator.per_page }}">
+            &larr; prev
+        </a>
+        &nbsp; &nbsp; &nbsp;
+        {% endif %}
+
+        <!-- All Pages -->
+        {% for i in page.paginator.page_range %}
+        &nbsp;
+        {% if i == page.number %}
+        <b style="color: red;">{{ i }}</b>
+        {% else %}
+        <a href="?page={{ i }}&per_page_number={{ page.paginator.per_page }}">
+            {{ i }}
+        </a>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Next Page -->
+        {% if page.has_next %}
+        &nbsp; &nbsp; &nbsp;
+        <a href="?page={{ page.next_page_number }}&per_page_number={{ page.paginator.per_page }}">
+            Next &rarr;
+        </a>
+        {% endif %}
+
+        <form action="" style="all: unset; display: flex; align-content: center;">
+        <input type="number" name="page" id="page" value="{{ page.number }}" hidden>
+        <label for="per_page_number">Items per page:</label> &nbsp;
+        <input type="number" name="per_page_number" id="per_page_number" value="{{page.paginator.per_page}}" min="1"
+            max="{{page.paginator.count}}" onchange="this.form.submit();">
+    </form>
+    </p>

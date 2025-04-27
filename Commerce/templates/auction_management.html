@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <form action="" method="post" style="width: 500px;" enctype="multipart/form-data">
+        {% csrf_token %}
+        <header>
+            <img src="{{ form.picture.value.url }}" alt="Picture" style="max-width: 300px; max-height: 500px;">
+        </header>
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</section>
+{% endblock content %}
