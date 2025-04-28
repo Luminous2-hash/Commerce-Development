@@ -16,8 +16,13 @@
         <nav id="main-nav">
             <a href="{% url 'index' %}" style="text-decoration: none;"><h1>Commerce</h1></a>
             <ul>
-                <li>Menu Item 1</li>
-                <li><a href="">Menu Item 2</a></li>
+                <!-- Adding Auctions Option -->
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'add_auction' %}">Add Auction</a></li>
+                {% endif %}
+                
+                <li><a href="{% url 'listing' %}">Listing</a></li>
+                <li><a href="{% url 'categories' %}">Categories</a></li>
                 
                 <!-- Nav Profile -->
                 <li>
@@ -71,8 +76,8 @@
         {% block content %}{% endblock content %}
     </main>
 
-    <footer>
-        <hr>
+    <footer style="padding: 0;">
+        <hr style="padding: 0; margin: 0;">
         <p>
             <small>
                 <address>

@@ -10,7 +10,7 @@
     <header>
         <h2>Active Listing</h2>
     </header>
-    {% for auction in page %}
+    {% for auction in auctions %}
     <!-- Auction Card -->
     <a href="{% url 'auction' auction.id %}" style="text-decoration: none; color: black;">
         <aside class="auction-card" style="width: 250px; height: 500px;">
@@ -21,7 +21,7 @@
             </div>
         </aside>
     </a>
-    
+
     {% empty %}
     <blockquote>
         There's No Active Listing Yet
@@ -30,7 +30,16 @@
     </blockquote>
     {% endfor %}
 
-    <!-- Pagination -->
-     {% include 'pagination.html' %}
 </section>
+
+<div style="text-align: center;">
+    {% if auctions|length < auctions_count %}
+        <a href="{% url 'listing' %}?status=A">
+            <h1>
+                See More!
+            </h1>
+        </a>
+    {% endif %}
+</div>
+    
 {% endblock content %}

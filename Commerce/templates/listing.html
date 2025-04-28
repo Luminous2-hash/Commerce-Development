@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+{{ block.super }}: Listing
+{% endblock title %}
+
+
+{% block content %}
+<section style="display: flex; flex-flow: row; width: 100%;">
+
+    <!-- Auction Cards Section -->
+    <section style="display: flex; flex-wrap: wrap; gap: 20px; flex: 3; justify-content: flex-start;">
+        {% for auction in page %}
+        <!-- Auction Card -->
+        <a href="{% url 'auction' auction.id %}" style="text-decoration: none; color: black;">
+            <aside class="auction-card" style="width: 250px; height: 500px;">
+                <img src="{{ auction.picture.url }}" alt=""
+                    style="max-width: 250px; max-height: 300px; object-fit: contain;">
+                <div>
+                    <h2>{{ auction.name }}</h2>
+                    <h4>Current Price: ${{ auction.price|floatformat:2 }}</h4>
+                </div>
+            </aside>
+        </a>
+
+        {% empty %}
+        <blockquote>
+            Your Requested Listing Not Found!
+        </blockquote>
+        {% endfor %}
+
+    </section>
+
+    <!-- Filter Form Section -->
+    <section style="display: flex; align-items: top; justify-content: flex-end; flex: 1; height: max-content;">
+        <form action="" method="get">
+            <!-- Query Parameters Preserves -->
+            {% for key, value in request.GET.items %}
+                {% if key not in form.fields %}
+                <input type="hidden" hidden name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+
+            {{ form.as_p }}
+
+            <button type="submit">Filter</button>
+        </form>
+    </section>
+</section>
+<footer>
+    {% include 'pagination.html' %}
+</footer>
+
+
+{% endblock %}

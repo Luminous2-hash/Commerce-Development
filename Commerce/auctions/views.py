@@ -4,10 +4,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 
 # Models
-from auctions.models import Auction
+from auctions.models import Auction, AuctionCategories, AuctionStatus
 
 # Forms
-from auctions.forms import UserProfileForm, UserRegisterForm, AuctionForm
+from auctions.forms import UserProfileForm, UserRegisterForm, AuctionForm, AuctionsListingFiltersForm
 
 # Auth
 from django.contrib.auth import login
@@ -85,47 +85,19 @@ def userprofile(request):
     return render(request, "userprofile.html", data)
 
 
-# Main View
+# Index View
 def index(request):
     '''_summary_
     Main Page
-    Queries all auctions and renders them with pagination.
+    Queries all auctions Then Caps Them at 6 Results and then renders them.
     '''
+    dflt_items_count = 6
     
-    # Defaults and Query initialiation
-    dflt_per_page_number = 12
-    dflt_page_number = 1
-    auctions = Auction.objects.all()
-
-    # Get user prefrence for items per page, default to 12, cap at total count
-    per_page_number = request.GET.get("per_page_number", dflt_per_page_number)
-
-    try:
-        per_page_number = int(per_page_number)
-    except ValueError:
-        per_page_number = dflt_per_page_number
-
-    if per_page_number > auctions.count():
-        per_page_number = auctions.count()
-
-    # Set up paginator and fetch user-selected page, default to 1, cap at total
-    paginator = Paginator(auctions, per_page_number)
-    page_number = request.GET.get("page", dflt_page_number)
-
-    try:
-        page_number = int(page_number)
-    except ValueError:
-        page_number = dflt_page_number
-
-    if page_number < dflt_page_number:
-        page_number = dflt_page_number
-    elif page_number > paginator.num_pages:
-        page_number = paginator.num_pages
-
-    page = paginator.get_page(page_number)
+    auctions = Auction.objects.filter(status=AuctionStatus.ACTIVE)
 
     data = {
-        "page": page,
+        "auctions_count": auctions.count(),
+        "auctions": auctions[:dflt_items_count],
     }
     return render(request, "index.html", data)
 
@@ -186,3 +158,94 @@ def auction_management(request, auction_id=0):
         "form": form
     }
     return render(request, "auction_management.html", data)
+
+# Categories View
+def categories(request):
+    '''_summary_
+    Displays Categories
+    Retrives AuctionCategories choices and renders them
+    '''
+    auction_categories = AuctionCategories.choices
+    
+    data = {
+        "auction_categories": auction_categories,
+    }
+    
+    return render(request, "categories.html", data)
+
+# Listing View
+def listing(request):
+    form = AuctionsListingFiltersForm()
+    auctions = Auction.objects.all()
+    
+    # Handles The Filters
+    if request.GET:
+        form = AuctionsListingFiltersForm(request.GET)
+        if form.is_valid():
+        
+            # all the filters dictionary    
+            filters = dict()
+            
+            # filters
+            category = form.cleaned_data.get('category', None)
+            if category:
+                filters['category__exact'] = category
+                
+            status = form.cleaned_data.get('status', None)
+            print(status)
+            if status:
+                filters['status__exact'] = status
+                
+            start_price = form.cleaned_data.get('start_price', None)
+            end_price = form.cleaned_data.get('end_price', None)
+            
+            if start_price and end_price:
+                filters['price__gte'] = start_price
+                filters['price__lte'] = end_price
+                
+            # Querying Auctions With User Associated Filters
+            auctions = auctions.filter(**filters)
+    
+    # To handle dynamic per_page_number and page_number
+    if auctions.exists():
+        # Defaults and Query initialiation
+        dflt_per_page_number = 12
+        dflt_page_number = 1
+
+        # Get user prefrence for items per page, default to 12, cap at total count
+        per_page_number = request.GET.get("per_page_number", dflt_per_page_number)
+
+        try:
+            per_page_number = int(per_page_number)
+        except ValueError:
+            per_page_number = dflt_per_page_number
+
+        if per_page_number > auctions.count():
+            per_page_number = auctions.count()
+
+        # Set up paginator and fetch user-selected page, default to 1, cap at total
+        paginator = Paginator(auctions, per_page_number)
+        page_number = request.GET.get("page", dflt_page_number)
+
+        try:
+            page_number = int(page_number)
+        except ValueError:
+            page_number = dflt_page_number
+
+        if page_number < dflt_page_number:
+            page_number = dflt_page_number
+        elif page_number > paginator.num_pages:
+            page_number = paginator.num_pages
+
+        page = paginator.get_page(page_number)
+    
+    # If No Auctions
+    else:
+        page = auctions
+        
+    data = {
+        "page": page,
+        "form": form,
+    }
+    
+    return render(request, "listing.html", data)
