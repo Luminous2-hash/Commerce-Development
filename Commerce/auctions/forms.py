@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from auctions.models import UserProfile, Auction, AuctionCategories, AuctionStatus
 
 
-# User Register Form
+# User Registeration Form
 class UserRegisterForm(UserCreationForm):
     # Below Fields Are blank=True in User Model
     first_name = forms.CharField(
@@ -48,11 +48,24 @@ UserProfileForm = forms.modelform_factory(
 )
 
 # Auction Add or Edit Form
-AuctionForm = forms.modelform_factory(
-    Auction, fields=("name", "description", "picture", "price", "category", "status")
-)
+class AuctionForm(forms.ModelForm):
+    
 
+    class Meta:
+        model = Auction
+        fields=("name", "description", "picture", "price", "category", "status")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance", None)
+        
+        # User Can't Edit Price
+        if instance:
+            price = self.fields['price']
+            price.disabled = True
+            price.help_text = "Editing Price Is Not Possible!"
+        
+# For All Choices
 def add_empty_choice(choice_model):
     """
     Adds an "empty" choice to a TextChoices class.
@@ -102,5 +115,5 @@ class AuctionsListingFiltersForm(forms.Form):
         start_price = clean_date.get("start_price", 0)
         end_price = clean_date.get("end_price", 0)
 
-        if start_price > end_price:
+        if (start_price and end_price) and start_price > end_price:
             raise forms.ValidationError("Start Price Can't Be Higher Than End Price")

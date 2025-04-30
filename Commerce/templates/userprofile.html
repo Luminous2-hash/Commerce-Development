@@ -25,7 +25,7 @@
             </a>
             <!-- Delete From Watch-List -->
             <div>
-                <form action="{% url 'watch_list' auction.id %}" method="post" style="all: unset;">
+                <form action="{% url 'watch_list' auction.id "delete" %}" method="post" style="all: unset;">
                     {% csrf_token %}
                     <input type="hidden" value="D" name="D" hidden>
                     <button style="background-color: red; border-color: brown;" type="submit">Delete</button>

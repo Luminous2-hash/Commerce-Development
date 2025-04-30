@@ -36,7 +36,7 @@
                     <a href="{% url 'edit_auction' auction.id %}">
                         <button>Edit</button>
                     </a>
-                    <form action="{% url 'watch_list' auction.id %}" method="post" style="all: unset;">
+                    <form action="{% url 'watch_list' auction.id "add" %}" method="post" style="all: unset;">
                         {% csrf_token %}
                         <input type="hidden" name="A" value="A">
                         <button>Add To WatchList</button>

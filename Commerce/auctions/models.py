@@ -76,17 +76,17 @@ class Auction(models.Model):
     # Updates top_bid and price for every higher bid
     def top_bid_handler(self, new_bid):
         '''
-            Return True if: Conditions Met
+            Return True if: Conditions Met, False other wise
             Updates price and top_bid
         '''
-        if new_bid.price > self.price:
-            new_bid.save()
-            self.price = new_bid.price
-            self.top_bid = new_bid
-            self.save()
-            return True
-        else:
+        if new_bid.price <= self.price:
             return False
+        
+        new_bid.save()
+        self.price = new_bid.price
+        self.top_bid = new_bid
+        self.save()
+        return True
             
             
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -128,7 +128,7 @@ class Comment(models.Model):
     
     class Meta:
         '''Meta definition for Comment.'''
-        ordering = ("date",)
+        ordering = ("-date",)
 
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
