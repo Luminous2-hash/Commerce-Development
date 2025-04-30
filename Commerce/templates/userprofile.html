@@ -4,9 +4,37 @@
 <section >
     <form action="" method="post" enctype="multipart/form-data" style="text-align: center;">
         <img src="{{ user.userprofile.avatar.url }}" alt="Avatar" height="200px">
+        <input type="hidden" name="EDIT" value="EDIT">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>
 </section>
+
+
+<section style="display: flex; flex-direction: row; flex-wrap: wrap;">
+    {% for auction in watch_list_objects %}
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <!-- Auction -->
+            <a href="{% url 'auction' auction.id %}" style="text-decoration: none; color: black;">
+                <aside style="width: 125px; height: 400px; text-align: center;">
+                    <img src="{{ auction.picture.url }}" alt="test" style="max-width: 125; max-height: 150px; object-fit: contain;">
+                    <p>{{ auction.name|truncatechars:40 }}</p> 
+                    <p>price: {{ auction.price }}</p>
+                </aside>
+            </a>
+            <!-- Delete From Watch-List -->
+            <div>
+                <form action="{% url 'watch_list' auction.id %}" method="post" style="all: unset;">
+                    {% csrf_token %}
+                    <input type="hidden" value="D" name="D" hidden>
+                    <button style="background-color: red; border-color: brown;" type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+
+    {% endfor %}
+</section>
+
 {% endblock content %}

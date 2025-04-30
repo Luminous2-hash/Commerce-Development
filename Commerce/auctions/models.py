@@ -75,10 +75,18 @@ class Auction(models.Model):
 
     # Updates top_bid and price for every higher bid
     def top_bid_handler(self, new_bid):
-        if not self.price or new_bid.price > self.price:
+        '''
+            Return True if: Conditions Met
+            Updates price and top_bid
+        '''
+        if new_bid.price > self.price:
+            new_bid.save()
             self.price = new_bid.price
             self.top_bid = new_bid
             self.save()
+            return True
+        else:
+            return False
             
             
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

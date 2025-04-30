@@ -7,13 +7,24 @@
 {% block content %}
     <section style="display: flex; gap: 20px; align-items: flex-start;">
         <!-- Picture on the left -->
-        <aside style="text-align: center;">
-            <img
-                src="{{ auction.picture.url }}"
-                alt="{{ auction.name }}'s picture"
-                style="max-width: 250px; max-height: 300px; object-fit: contain;"
-            >
-        </aside>
+         <div style="display: flex; flex-direction: column; align-items: center;">
+            <aside style="text-align: center;">
+                <img
+                    src="{{ auction.picture.url }}"
+                    alt="{{ auction.name }}'s picture"
+                    style="max-width: 250px; max-height: 300px; object-fit: contain;"
+                >
+            </aside>
+            {% if user.is_authenticated and auction.status == "A" %}
+            <form action="{% url 'bid' auction.id %}" method="post" style="max-width: 250px; max-height: 300px;">
+                {% csrf_token %}
+                <label for="price">Your Bid Price:</label>
+                <input type="number" min="{{ auction.price }}" step="0.01" name="price" id="price">
+                <button type="submit">Bid</button>
+            </form>
+            {% endif %}
+         </div>
+        
 
         <!-- Specs and Details on the right -->
         <div style="flex: 1;">
@@ -21,10 +32,17 @@
                 <h2>
                     {{ auction.name }} <sup>{{ auction.get_status_display }}</sup>
                 </h2>
-                {% if auction.owner == user %}
+                {% if auction.owner == user and auction.status != "C" %}
                     <a href="{% url 'edit_auction' auction.id %}">
                         <button>Edit</button>
                     </a>
+                    <form action="{% url 'watch_list' auction.id %}" method="post" style="all: unset;">
+                        {% csrf_token %}
+                        <input type="hidden" name="A" value="A">
+                        <button>Add To WatchList</button>
+                    </form>
+                {% elif auction.status == "C" and auction.top_bid == user %}
+                    You Won!
                 {% endif %}
             </div>
             <p>
@@ -37,4 +55,42 @@
             </p>
         </div>
     </section>
+
+
+{% if user.is_authenticated and auction.status == "A" %}
+    <hr style="margin-top: 1em; margin-bottom: 0;">
+    <section>
+        <details style="color: #118bee;">
+            <summary>Leave A Comment</summary>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <form action="{% url 'comment' auction.id %}" method="post">
+                        {% csrf_token %}
+                        <label for="comment"></label>
+                        <textarea name="comment" id="comment" rows="10" cols="100"></textarea>
+                        <button type="submit">Comment</button>
+                    </form>
+                </div>
+        </details>
+    </section>
+    <hr style="margin-top: 1em; margin-bottom: 0;">
+{% endif %}
+
+
+<div>
+    <p>
+        <strong>Comments:</strong>
+    </p>
+    {% for comment in comments %}
+        <article>
+            <aside>
+                <p>
+                    <b>{{ comment.commenter.first_name }}</b>: &nbsp; {{ comment.text }}
+                    <br>
+                    <small>{{ comment.date|date:"D d M Y P" }}</small>
+                </p>
+            </aside>
+        </article>
+        <br>
+    {% endfor %}
+</div>
 {% endblock content %}

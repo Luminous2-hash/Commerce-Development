@@ -97,10 +97,10 @@ class AuctionsListingFiltersForm(forms.Form):
     def clean(self):
         super().clean()
 
-        # # Price Range Validation
-        # clean_date = self.cleaned_data
-        # start_price = clean_date.get("start_price", 0)
-        # end_price = clean_date.get("end_price", 0)
+        # Price Range Validation
+        clean_date = self.cleaned_data
+        start_price = clean_date.get("start_price", 0)
+        end_price = clean_date.get("end_price", 0)
 
-        # if start_price > end_price:
-        #     raise forms.ValidationError("Start Price Can't Be Higher Than End Price")
+        if start_price > end_price:
+            raise forms.ValidationError("Start Price Can't Be Higher Than End Price")

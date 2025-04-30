@@ -1,13 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.core import serializers
 
 # Models
-from auctions.models import Auction, AuctionCategories, AuctionStatus
+from auctions.models import Auction, AuctionCategories, AuctionStatus, Bid, Comment
 
 # Forms
-from auctions.forms import UserProfileForm, UserRegisterForm, AuctionForm, AuctionsListingFiltersForm
+from auctions.forms import (
+    UserProfileForm,
+    UserRegisterForm,
+    AuctionForm,
+    AuctionsListingFiltersForm,
+)
 
 # Auth
 from django.contrib.auth import login
@@ -77,8 +83,12 @@ def userprofile(request):
                 request,
                 "There Was An Issue with your submission. Please review the form and try again.",
             )
+            
+    # Retrives Watch list
+    watch_list_objects = profile.watch_list.all()
 
     data = {
+        "watch_list_objects": watch_list_objects,
         "form": form,
     }
 
@@ -87,12 +97,12 @@ def userprofile(request):
 
 # Index View
 def index(request):
-    '''_summary_
+    """_summary_
     Main Page
     Queries all auctions Then Caps Them at 6 Results and then renders them.
-    '''
+    """
     dflt_items_count = 6
-    
+
     auctions = Auction.objects.filter(status=AuctionStatus.ACTIVE)
 
     data = {
@@ -101,111 +111,122 @@ def index(request):
     }
     return render(request, "index.html", data)
 
+
 # Auction View
 def auction(request, auction_id):
-    '''_summary_
-    
+    """_summary_
+
     Retrives the auction object based on it's ID and
     renders it to auction page.
-    '''
+    """
     auction_obj = get_object_or_404(Auction, id=auction_id)
-    
+    comments = Comment.objects.filter(auction=auction_obj)[:10]
     data = {
+        "comments": comments,
         "auction": auction_obj,
     }
-    
+
     return render(request, "auction.html", data)
+
 
 # Auction Management
 @login_required
 def auction_management(request, auction_id=0):
-    '''_summary_
+    """_summary_
 
     View for managing auctions. Allows user to create or edit auctions.
     - if auction_id is provided, the view process the form submission.
     - if the request method is GET, the view displays the form to create or edit an auction.
-    '''
-    
+    """
+
     # concludes edit False or True
     edit = auction_id != 0
-    
+
     # Form Initializing for edit or add mode
     if edit:
         auction_obj = get_object_or_404(Auction, id=auction_id, owner=request.user)
         form = AuctionForm(instance=auction_obj)
     else:
         form = AuctionForm()
-    
+
     # Adds or Edit Auction
     if request.method == "POST":
         if edit:
             form = AuctionForm(request.POST, request.FILES, instance=auction_obj)
         else:
             form = AuctionForm(request.POST, request.FILES)
-        
+
         if form.is_valid():
             auction_instance = form.save(commit=False)
-            
+
             if not edit:
                 auction_instance.owner = request.user
-            
+
             auction_instance.save()
             return redirect(auction, auction_id=auction_instance.id)
         else:
             messages.error(request, "Processing Your Form Submission Failed!")
-            
-    data = {
-        "form": form
-    }
+
+    data = {"form": form}
     return render(request, "auction_management.html", data)
+
 
 # Categories View
 def categories(request):
-    '''_summary_
+    """_summary_
     Displays Categories
     Retrives AuctionCategories choices and renders them
-    '''
+    """
     auction_categories = AuctionCategories.choices
-    
+
     data = {
         "auction_categories": auction_categories,
     }
-    
+
     return render(request, "categories.html", data)
+
 
 # Listing View
 def listing(request):
+    """__summary__
+    Retrieves all auctions and applies filters based on the GET request parameters.
+
+    Filters include category, status, and price range (start_price and end_price).
+    Handles pagination dynamically based on user preferences for items per page and the current page.
+
+    If no GET parameters are provided, renders the filter form and all auctions.
+    If the QuerySet is empty, skips the pagination process and assigns an empty list to the page.
+    """
     form = AuctionsListingFiltersForm()
     auctions = Auction.objects.all()
-    
+
     # Handles The Filters
     if request.GET:
         form = AuctionsListingFiltersForm(request.GET)
         if form.is_valid():
-        
-            # all the filters dictionary    
+            # all the filters dictionary
             filters = dict()
-            
+
             # filters
-            category = form.cleaned_data.get('category', None)
+            category = form.cleaned_data.get("category", None)
             if category:
-                filters['category__exact'] = category
-                
-            status = form.cleaned_data.get('status', None)
+                filters["category__exact"] = category
+
+            status = form.cleaned_data.get("status", None)
             print(status)
             if status:
-                filters['status__exact'] = status
-                
-            start_price = form.cleaned_data.get('start_price', None)
-            end_price = form.cleaned_data.get('end_price', None)
-            
+                filters["status__exact"] = status
+
+            start_price = form.cleaned_data.get("start_price", None)
+            end_price = form.cleaned_data.get("end_price", None)
+
             if start_price and end_price:
-                filters['price__gte'] = start_price
-                filters['price__lte'] = end_price
-                
+                filters["price__gte"] = start_price
+                filters["price__lte"] = end_price
+
             # Querying Auctions With User Associated Filters
             auctions = auctions.filter(**filters)
-    
+
     # To handle dynamic per_page_number and page_number
     if auctions.exists():
         # Defaults and Query initialiation
@@ -238,14 +259,129 @@ def listing(request):
             page_number = paginator.num_pages
 
         page = paginator.get_page(page_number)
-    
+
     # If No Auctions
     else:
-        page = auctions
-        
+        page = []
+
     data = {
         "page": page,
         "form": form,
     }
-    
+
     return render(request, "listing.html", data)
+
+
+@login_required
+def bid(request, auction_id=None):
+    """
+    Handles the bidding process for an auction.
+
+    Raises Http404 if no auction ID is provided or the auction is not found.
+    Retrieves price from POST request and converts it to float.
+    Checks auction status to be active before processing the bid.
+    Creates a new bid instance or updates the user's existing bid.
+    Executes the auction's top_bid_handler method to validate and update the top bid and auction price.
+    """
+
+    # No Auction Provided Handler
+    if not auction_id:
+        raise Http404("No Auction Provided")
+
+    # Retrives Auction Object
+    auction_obj = get_object_or_404(Auction, id=auction_id)
+
+    # Retrives Submitted Price
+    price = request.POST.get("price", None)
+    if not price:
+        messages.error(request, "No Price has bee provided")
+        return auction(request, auction_id)
+
+    # Checking Price To Be Right Type
+    try:
+        price = float(price)
+    except ValueError:
+        messages.error(request, "Price Should Be Number!")
+        return auction(request, auction_id)
+
+    # Checking Auction To be Active
+    if auction_obj.status != AuctionStatus.ACTIVE:
+        messages.error(request, f"Auction is {auction_obj.status.value()}")
+        return auction(request, auction_id)
+
+    # Fetches User's Latest Bid On The Auction
+    new_bid = Bid.objects.filter(bidder=request.user, auction=auction_obj)
+    if new_bid.count() == 1:
+        new_bid = new_bid.first()
+        new_bid.price = price
+    else:
+        # Creates New Bid Object
+        new_bid = Bid(
+            price=price,
+            bidder=request.user,
+            auction=auction_obj,
+        )
+
+    # Saves New Bid and Updates Top_Bid
+    if auction_obj.top_bid_handler(new_bid):
+        messages.success(request, "Your bid was successful")
+        return auction(request, auction_id)
+    else:
+        messages.error(request, "Something Went Wrong With Your Submission!")
+        return auction(request, auction_id)
+
+# Comment
+@login_required
+def comment(request, auction_id=None):
+    # Check for auction_id argument
+    if not auction_id:
+        raise Http404("No Auction Provided!")
+    # Get's Auction Object Or raises 404 Exception
+    auction_obj = get_object_or_404(Auction, id=auction_id)
+    # Retrives Submitted Text and Creates Comment  
+    text = request.POST.get("comment", None)
+    if text:
+        new_comment = Comment(
+            text = text,
+            commenter = request.user,
+            auction=auction_obj,
+        )
+        new_comment.save()
+        messages.success(request, "You're Comment Submitted Successfully")
+    else:
+        messages.warning(request, "Comment Did Not Create Duo Lack Of Text!")
+    
+    return auction(request, auction_id)
+        
+@login_required
+def watch_list(request, auction_id=None):
+    if request.method != "POST":
+        raise Http404("Wrong Method")
+    if not auction_id:
+        raise Http404("No Auction Provided")
+    
+    # Retrives Auction Object or Raise an exception
+    auction_obj = get_object_or_404(Auction, id=auction_id)
+    
+    # Retrives UserProfile
+    profile = getattr(request.user, "userprofile", None)
+    if not profile:
+        raise Http404("UserProfiel Not Found!")
+    
+
+    if request.POST.get("A", None):
+        profile.watch_list.add(auction_obj)
+        messages.success(request, "Successfully added to watch list!")
+        return redirect(request, auction_id=auction_id)
+    
+    elif request.POST.get("D", None):
+        profile.watch_list.remove(auction_obj)
+        messages.success(request, "Deleted From your watch list!")
+        return redirect(userprofile)
+    
+    else:
+        messages.error(request, "Unknown Action")
+        return redirect(auction, auction_id=auction_id)
+    
+    
+    
