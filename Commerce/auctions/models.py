@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 # UserProfile
 class UserProfile(models.Model):
     # Relations
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_index=True)
 
     # Specs
     avatar = models.ImageField(default="default.png", upload_to="profile_images")
@@ -52,11 +52,11 @@ class Auction(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     picture = models.ImageField(default="auction.png", upload_to="auction_images")
-    price = models.FloatField()
+    price = models.FloatField(db_index=True)
     category = models.CharField(
-        choices=AuctionCategories, default=AuctionCategories.OTHER
+        choices=AuctionCategories, default=AuctionCategories.OTHER, db_index=True
     )
-    status = models.CharField(choices=AuctionStatus, default=AuctionStatus.ACTIVE)
+    status = models.CharField(choices=AuctionStatus, default=AuctionStatus.ACTIVE, db_index=True)
 
     # Relations
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,6 +66,12 @@ class Auction(models.Model):
     class Meta:
         """Meta definition for Auction."""
         ordering = ("date",)
+        
+        # Indexing
+        indexes = [
+            # For Filtering
+            models.Index(fields=['status', 'category', 'price']),
+        ]
         
         verbose_name = "Auction"
         verbose_name_plural = "Auctions"
@@ -105,6 +111,11 @@ class Bid(models.Model):
         '''Meta definition for Bid.'''
         ordering = ("price",)
 
+        # Indexes
+        indexes = [
+            models.Index(fields=['auction', 'bidder']),
+        ]
+        
         verbose_name = 'Bid'
         verbose_name_plural = 'Bids'
 
@@ -122,7 +133,7 @@ class Comment(models.Model):
     
     # Relations
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
-    auction = models.ForeignKey(Auction, on_delete=models.CASCADE)
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE , db_index=True)
     
     
     
