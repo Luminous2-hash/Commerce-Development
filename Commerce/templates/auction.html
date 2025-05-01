@@ -1,96 +1,127 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {{ block.super }}: {{ auction.name }}
+{{ block.super }}: {{ auction.name }}
 {% endblock title %}
 
 {% block content %}
-    <section style="display: flex; gap: 20px; align-items: flex-start;">
-        <!-- Picture on the left -->
-         <div style="display: flex; flex-direction: column; align-items: center;">
-            <aside style="text-align: center;">
-                <img
-                    src="{{ auction.picture.url }}"
-                    alt="{{ auction.name }}'s picture"
-                    style="max-width: 250px; max-height: 300px; object-fit: contain;"
-                >
-            </aside>
+
+<!-- Winner Alert -->
+{% if auction.status == "C" and auction.top_bid.bidder == user %}
+<section>
+    <p class="alert alert-info">You've Won This Auction! Congratulation &#127881;</p>
+</section>
+{% endif %}
+
+<!-- Auction Section -->
+<section class="auction-section">
+
+    <!-- Left Column: Auction Picture -->
+    <div>
+        <aside style="text-align: center;">
+            <img src="{{ auction.picture.url }}" alt="{{ auction.name }}'s picture" class="auction-picture">
+        </aside>
+    </div>
+
+    <!-- Right Column: Auction Specs and Actions -->
+    <div>
+
+        <!-- Name And Status -->
+        <div>
+            <h2 style="margin: 0;">
+                {{ auction.name }} <sup>{{ auction.get_status_display }}</sup>
+            </h2>
+        </div>
+
+        <!-- Price And Category -->
+        <p style="margin: 0.5em 0;">
+            <small><strong>Price:</strong></small> ${{ auction.price|floatformat:2 }}<br>
+            <small><strong>Category:</strong></small> {{ auction.get_category_display }}
+        </p>
+
+        <!-- Edit And Add To WatchList Button -->
+        <div>
+            <!-- Owner-specific action: Edit (if auction is not closed) -->
+            {% if auction.owner == user and auction.status != "C" %}
+            <a href="{% url 'edit_auction' auction.id %}">
+                <button>Edit</button>
+            </a>
+            {% endif %}
+
+            <!-- Watch List Button: available to all authenticated users if auction isn't closed -->
+            {% if user.is_authenticated and auction.status != "C" %}
+            <form action="{% url 'watch_list' auction.id 'add' %}" method="post" style="all: unset;">
+                {% csrf_token %}
+                <button>Add To WatchList</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Bid Form: shown only if the auction is active and the user is authenticated -->
+        <div>
             {% if user.is_authenticated and auction.status == "A" %}
-            <form action="{% url 'bid' auction.id %}" method="post" style="max-width: 250px; max-height: 300px;">
+            <form action="{% url 'bid' auction.id %}" method="post" style="max-width: 250px; display: inline-block;">
                 {% csrf_token %}
                 <label for="price">Your Bid Price:</label>
-                <input type="number" min="{{ auction.price }}" step="0.01" name="price" id="price">
+                <input type="number" name="price" id="price" min="{{ auction.price }}" step="0.01">
                 <button type="submit">Bid</button>
             </form>
             {% endif %}
-         </div>
-        
-
-        <!-- Specs and Details on the right -->
-        <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>
-                    {{ auction.name }} <sup>{{ auction.get_status_display }}</sup>
-                </h2>
-                {% if auction.owner == user and auction.status != "C" %}
-                    <a href="{% url 'edit_auction' auction.id %}">
-                        <button>Edit</button>
-                    </a>
-                    <form action="{% url 'watch_list' auction.id "add" %}" method="post" style="all: unset;">
-                        {% csrf_token %}
-                        <input type="hidden" name="A" value="A">
-                        <button>Add To WatchList</button>
-                    </form>
-                {% elif auction.status == "C" and auction.top_bid == user %}
-                    You Won!
-                {% endif %}
-            </div>
-            <p>
-                <small><strong>Price:</strong></small> ${{ auction.price|floatformat:2 }}<br>
-                <small><strong>Category:</strong></small> {{ auction.get_category_display }}
-            </p>
-            <p>
-                <em>Description:</em><br>
-                <b>{{ auction.description }}</b>
-            </p>
         </div>
-    </section>
 
+    </div>
+</section>
 
-{% if user.is_authenticated and auction.status == "A" %}
-    <hr style="margin-top: 1em; margin-bottom: 0;">
-    <section>
-        <details style="color: #118bee;">
-            <summary>Leave A Comment</summary>
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <form action="{% url 'comment' auction.id %}" method="post">
-                        {% csrf_token %}
-                        <label for="comment"></label>
-                        <textarea name="comment" id="comment" rows="10" cols="100"></textarea>
-                        <button type="submit">Comment</button>
-                    </form>
-                </div>
-        </details>
-    </section>
-    <hr style="margin-top: 1em; margin-bottom: 0;">
+<!-- Description Section -->
+<section>
+    <p>
+        <em>Description:</em><br>
+        <b>{{ auction.description }}</b>
+    </p>
+</section>
+
+<!-- Leave a Comment Section -->
+{% if user.is_authenticated %}
+<hr>
+<section style="margin: 1em 0;">
+    <details style="color: #118bee;">
+        <summary>Leave A Comment</summary>
+        <div class="leave-a-comment">
+            <form action="{% url 'comment' auction.id %}" method="post">
+                {% csrf_token %}
+                <textarea name="comment" id="comment" rows="10" cols="100"
+                    placeholder="Write your comment here..."></textarea>
+                <button type="submit">Comment</button>
+            </form>
+        </div>
+    </details>
+</section>
+<hr>
 {% endif %}
 
-
-<div>
+<!-- Comments Section -->
+<div style="margin-top: 1em;">
+    <!-- Title -->
     <p>
         <strong>Comments:</strong>
     </p>
+    <!-- Comments Section -->
     {% for comment in comments %}
-        <article>
-            <aside>
-                <p>
-                    <b>{{ comment.commenter.first_name }}</b>: &nbsp; {{ comment.text }}
-                    <br>
-                    <small>{{ comment.date|date:"D d M Y P" }}</small>
-                </p>
-            </aside>
-        </article>
-        <br>
+    <article>
+        <aside>
+            <p>
+                <!-- Comment -->
+                <b>{{ comment.commenter.first_name }}</b>: &nbsp; {{ comment.text }}
+                <br>
+                <small>{{ comment.date|date:"D d M Y P" }}</small>
+            </p>
+        </aside>
+    </article>
+    <br>
+    <!-- No Comment -->
+    {% empty %}
+    <p>No comments yet.</p>
     {% endfor %}
 </div>
+
 {% endblock content %}

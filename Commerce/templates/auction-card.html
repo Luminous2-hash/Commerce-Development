@@ -1,0 +1,14 @@
+<!-- Link The Card To Auction Page -->
+<a href="{% url 'auction' auction.id %}" class="auction-card">
+    <!-- Card -->
+    <aside>
+        <!-- Card Image -->
+            <figure>
+            <img src="{{ auction.picture.url }}" alt="{{ auction.name }}'s Picture">
+            </figure>
+        <!-- Card Title -->
+        <h2>{{ auction.name|truncatewords:4 }}</h2>
+        <!-- Card Price -->
+        <b>price: ${{ auction.price|floatformat:2 }}</b>
+    </aside>
+</a>

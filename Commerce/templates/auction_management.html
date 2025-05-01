@@ -1,12 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Auction Add and Edit Form -->
 <section>
     <form action="" method="post" style="width: 500px;" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Auction Picture In Edit -->
+        {% if form.picture.value.url %}
+            <header>
+                <img src="{{ form.picture.value.url }}" alt="Picture" style="max-width: 300px; max-height: 500px;">
+            </header>
+        {% else %}
+        <!-- Default Picture In Add -->
         <header>
-            <img src="{{ form.picture.value.url }}" alt="Picture" style="max-width: 300px; max-height: 500px;">
+            <img src="/media/auction.png" alt="Picture" style="max-width: 300px; max-height: 500px;">
         </header>
+        {% endif %}
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>

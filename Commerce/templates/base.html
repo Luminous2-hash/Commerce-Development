@@ -5,84 +5,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commerce {% block title %}{% endblock title %}</title>
-    <link rel="stylesheet" href="{% static "css/mvp.css" %}">
-    <link rel="stylesheet" href="{% static "css/styles.css" %}">
+    <!-- block title -->
+    <title>
+        {% block title %}Commerce{% endblock title %}
+    </title>
+    <link rel="stylesheet" href="{% static "css/mvp.css" %}?version=1|">
+    <link rel="stylesheet" href="{% static "css/styles.css" %}?version=1">
 </head>
 <body>
-
+    <!-- NavBar -->
     <header>
-        <!-- NavBar -->
-        <nav id="main-nav">
-            <a href="{% url 'index' %}" style="text-decoration: none;"><h1>Commerce</h1></a>
+        <nav>
+            <!-- Brand -->
+            <a href="{% url 'index' %}">
+                <h1>Commerce</h1>
+            </a>
+            <!-- Menue -->
             <ul>
-                <!-- Adding Auctions Option -->
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'add_auction' %}">Add Auction</a></li>
-                {% endif %}
-                
                 <li><a href="{% url 'listing' %}">Listing</a></li>
                 <li><a href="{% url 'categories' %}">Categories</a></li>
-                
-                <!-- Nav Profile -->
-                <li>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'userprofile' %}">
-                            {{ user.first_name }}'s Profile
-                        </a>
-                        
-                        <!-- Functionalities -->
+                <!-- Authenticated User Menue -->
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'add_auction' %}">Add Auction</a></li>
+                    <!-- User Profile -->
+                    <li>
+                        <a href="{% url 'userprofile' %}">{{ user.first_name }}'s Profile</a>
+                        <!-- User Profile DropDown Menue -->
                         <ul>
-
-                            <!-- Profile Picture -->
-                            <li>
-                                <section>
-                                    <img src="{{user.userprofile.avatar.url}}" alt="" height="100px">
-                                </section>
-                            </li>
-
-                            <li>
-                                <section>
-                                    {{ user.first_name }} {{ user.last_name }}
-                                </section>
-                            </li>
-
                             <!-- LogOut Button -->
                             <li>
-                                <form action="{% url 'logout' %}" method="post" style="text-align: center;">
+                                <form action="{% url 'logout' %}" method="post" style="all: unset;">
                                     {% csrf_token %}
                                     <button>LogOut</button>
                                 </form>
                             </li>
-
                         </ul>
-                    
-                    <!-- Log In -->
-                    {% else %}
+                    </li>
+                <!-- Anonymos User Menue -->
+                {% else %}
+                    <li>
                         <a href="{% url 'login' %}">LogIn</a>
                         &VerticalSeparator;
                         <a href="{% url 'register' %}">register</a>
-                    {% endif %}
-
-                </li>
+                    </li>
+                {% endif %}
             </ul>
         </nav>
 
-        {% include 'alert.html'%}
-        
+        <!-- Alert (Messages) With Custom CSS -->
+        {% include 'alert.html' %}
+
     </header>
-    
+
+    <!-- Content Block -->
     <main>
         {% block content %}{% endblock content %}
     </main>
 
-    <footer style="padding: 0;">
-        <hr style="padding: 0; margin: 0;">
+    <!-- Footer -->
+    <footer>
         <p>
             <small>
-                <address>
-                    Written by <a href="mailto:amirsalehi1382@outlook.com">Amir Salehi</a>
-                </address>
+                <address>Written by <a href="mailto:amirsalehi1382@outlook.com">Amir Salehi</a></address>
             </small>
         </p>
     </footer>

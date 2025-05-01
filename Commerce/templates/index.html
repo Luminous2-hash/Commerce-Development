@@ -1,45 +1,35 @@
 {% extends 'base.html' %}
 
+<!-- Title Block -->
 {% block title %}
-{{ block.super }}: Index
-{% endblock title %}
+    {{ block.super }}: Index
+{% endblock title %}{{ block.super }}
 
+<!-- Content Block -->
 {% block content %}
-<!-- Auction Listing -->
-<section>
-    <header>
-        <h2>Active Listing</h2>
-    </header>
-    {% for auction in auctions %}
-    <!-- Auction Card -->
-    <a href="{% url 'auction' auction.id %}" style="text-decoration: none; color: black;">
-        <aside class="auction-card" style="width: 250px; height: 500px;">
-            <img src="{{ auction.picture.url }}" alt="" style="max-width: 250px; max-height: 300px; object-fit: contain;">
-            <div>
-                <h2>{{ auction.name }}</h2>
-                <h4>Current Price: ${{ auction.price|floatformat:2 }}</h4>
-            </div>
-        </aside>
-    </a>
+    <section>
+        <!-- Active Listing Title -->
+        <header><h2>Active Listing</h2></header>
 
-    {% empty %}
-    <blockquote>
-        There's No Active Listing Yet
-        <br>
-        Come Visit Us Later
-    </blockquote>
-    {% endfor %}
+        <!-- Active Listing Cards -->
+        {% for auction in auctions %}
+            {% include 'auction-card.html' %}
+        <!-- No Auction -->
+        {% empty %}
+            <blockquote>
+                There's No Active Listing Yet
+                <br>
+                Come Visit Us Later
+            </blockquote>
+        {% endfor %}
 
-</section>
-
-<div style="text-align: center;">
-    {% if auctions|length < auctions_count %}
+        <!-- More Auctions -->
+        {% if auctions|length < auctions_count %}
         <a href="{% url 'listing' %}?status=A">
-            <h1>
-                See More!
-            </h1>
+            <h1>See More!</h1>
         </a>
-    {% endif %}
-</div>
-    
+        {% endif %}
+
+
+    </section>
 {% endblock content %}

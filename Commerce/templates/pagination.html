@@ -1,7 +1,6 @@
-<hr style="margin: 0; padding: 0;">
-<p style="text-align: center;">
+<hr>
+<p class="pagination-text">
     <!-- Previous Page -->
-    <!-- Next Page -->
     {% if page.has_previous %}
     <a href="{% querystring page=page.previous_page_number per_page_number=page.paginator.per_page %}">
         &larr; prev
@@ -9,11 +8,12 @@
     &nbsp; &nbsp; &nbsp;
     {% endif %}
 
-    <!-- All Pages -->
+    <!-- Page Numbers -->
     {% for i in page.paginator.page_range %}
     &nbsp;
+    <!-- Makes Current Page Red -->
     {% if i == page.number %}
-    <b style="color: red;">{{ i }}</b>
+    <b class="pagination-current">{{ i }}</b>
     {% else %}
     <a href="{% querystring page=i per_page_number=page.paginator.per_page %}">
         {{ i }}
@@ -29,20 +29,18 @@
     </a>
     {% endif %}
 
-<form action="" style="all: unset; display: flex; align-content: center;">
-
-    <!-- Perserves The Query Parameters and prevents duplication -->
+    <!-- Items Per Page Form -->
+<form action="" method="get" class="pagination-form">
+    <!-- Preserve Query Parameters -->
     {% for key, value in request.GET.items %}
-
-    {% if key != "page" and key != "per_page_number" %}
+    <!-- Prevents Query Parameters Duplication -->
+    {% if key != "per_page_number" %}
     <input type="text" hidden name="{{ key }}" value="{{ value }}">
     {% endif %}
-
     {% endfor %}
-
-    <input type="number" name="page" id="page" value="{{ page.number }}" hidden>
+    <!-- Items Per Page Input -->
     <label for="per_page_number">Items per page:</label> &nbsp;
-    <input type="number" name="per_page_number" id="per_page_number" value="{{page.paginator.per_page}}" min="1"
-        max="{{page.paginator.count}}" onchange="this.form.submit();">
+    <input type="number" name="per_page_number" id="per_page_number" value="{{ page.paginator.per_page }}" min="1"
+        max="{{ page.paginator.count }}" onchange="this.form.submit();">
 </form>
 </p>

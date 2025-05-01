@@ -1,53 +1,138 @@
 /* Generic Alert Messages */
 .alert {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: large;
-    text-align: center;
-    color: #000000;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  text-align: center;
+  color: #000000;
 }
 
 /* Error Messages */
 .alert-error {
-    background-color: #f44336;
-    border-color: #d32f2f;
+  background-color: #f44336;
+  border-color: #d32f2f;
 }
 
 /* Warning Messages */
 .alert-warning {
-    background-color: #ff9800;
-    border-color: #ef6c00;
+  background-color: #ff9800;
+  border-color: #ef6c00;
 }
 
 /* Info Messages */
 .alert-info {
-    background-color: #2196f3;
-    border-color: #0d80d7;
+  background-color: #2196f3;
+  border-color: #0d80d7;
 }
 
 /* Success Messages */
 .alert-success {
-    background-color: #4caf50;
-    border-color: #388e3c;
+  background-color: #4caf50;
+  border-color: #388e3c;
 }
 
-/* compatibility with Messages */
-#main-nav {
-    margin-bottom: 0px;
+/* index */
+/* Making Products Card Centered and Spaced Between */
+.auction-card aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 520px;
 }
 
-#nav-profile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.auction-card * {
+  color: #000000;
+  text-align: center;
 }
 
-/* Making Products Card centerlized and space between */
-.auction-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+.auction-card img {
+  max-width: 250px;
+  height: 300px;
+  object-fit: contain;
+  /* Optional: helps maintain a consistent look */
+}
+
+a {
+  text-decoration: none;
+}
+
+/* listing */
+/* Container that wraps the whole listing page content */
+.listing-container {
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+}
+
+/* Section for auction cards within listing page */
+.listing-container__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  flex: 3;
+  justify-content: flex-start;
+}
+
+/* Section for the filter form on the listing page */
+.listing-container__filter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex: 1;
+  height: max-content;
+}
+
+/* Categories */
+.category {
+  text-align: center;
+}
+
+/* Pagination */
+/* Center the pagination text content */
+.pagination-text {
+  text-align: center;
+}
+
+/* Styling for the form wrapping the items per page input */
+.pagination-form {
+  /* Reset inherited styles if needed */
+  all: unset;
+  display: flex;
+  align-items: center;
+}
+
+/* Make the current page number appear in red */
+.pagination-current {
+  color: red;
+}
+
+/* Auction */
+/* Makes Comment Section Center */
+.leave-a-comment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1em;
+}
+
+/* Aligns Auction Picture and Description and Actions */
+.auction-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Auction Picture */
+.auction-picture {
+  max-width: 250px;
+  height: 325px;
+  object-fit: contain;
+}
+
+/* Makes Nav Margin Go Padding Is Enough */
+nav {
+  margin: 0;
 }

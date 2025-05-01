@@ -235,9 +235,10 @@ def listing(request):
             auctions = auctions.filter(**filters)
 
     # To handle dynamic per_page_number and page_number
+    # Halts The Pagination Process If No Auction
     if auctions.exists():
         # Defaults and Query initialiation
-        dflt_per_page_number = 12
+        dflt_per_page_number = 8
         dflt_page_number = 1
 
         # Get user prefrence for items per page, default to 12, cap at total count
@@ -248,7 +249,9 @@ def listing(request):
         except ValueError:
             per_page_number = dflt_per_page_number
 
-        if per_page_number > auctions.count():
+        if per_page_number <= 0:
+            per_page_number = dflt_per_page_number
+        elif per_page_number > auctions.count():
             per_page_number = auctions.count()
 
         # Set up paginator and fetch user-selected page, default to 1, cap at total

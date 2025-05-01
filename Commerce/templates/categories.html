@@ -1,32 +1,32 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block title %}
-{{ block.super }}: Categories
-{% endblock title %}
-
-
+  {{ block.super }}: Categories
+{% endblock %}
 {% block content %}
-<header>
-    <h1>
-        Categories
-    </h1>
-</header>
+  <header>
+    <h1>Categories</h1>
+  </header>
 
-<section>
+  <section>
     <!-- Categories With Links and Pictures -->
     {% for category in auction_categories %}
-    <a href="{% url 'listing' %}?category={{ category.0 }}" style="text-decoration: none; text-align: center;">
-        <aside style="height: 360px;">
-            <img src="{% static 'pictures/categories/' category.0 %}{{ category.0 }}.png" alt="">
-            <h3>{{ category.1 }}</h3>
+      <!-- Category Filter listing Link -->
+      <a href="{% url 'listing' %}?category={{ category.0 }}" class="category">
+        <!-- Category Card -->
+        <aside style="height: 360px">
+          <!-- Image Card -->
+          <img src="{% static 'pictures/categories/' category.0 %}{{ category.0 }}.png" alt="{{ category.0 }}'s picture" />
+          <!-- Category Title -->
+          <h3>{{ category.1 }}</h3>
         </aside>
-    </a>
+      </a>
     {% endfor %}
-</section>
+  </section>
 
-<footer style="text-align: center;">
+  <!-- Attribution For Pictures -->
+  <footer style="text-align: center">
     <a href="https://www.vecteezy.com/free-png/sports" target="_blank">Sports PNGs by Vecteezy</a>
-</footer>
-{% endblock content %}
+  </footer>
+{% endblock %}
