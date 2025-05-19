@@ -14,15 +14,15 @@ from auctions.models import UserProfile, Auction, AuctionCategories, AuctionStat
 class UserRegisterForm(UserCreationForm):
     # Below Fields Are blank=True in User Model
     first_name = forms.CharField(
-        max_length=30,
+        max_length=150,
         required=True,
         widget=forms.widgets.TextInput(attrs={"autofocus": True}),
-        help_text="Max Character Is 30",
+        help_text="Max Character Is 150",
     )
     last_name = forms.CharField(
-        max_length=30,
+        max_length=150,
         required=True,
-        help_text="Max Character Is 30",
+        help_text="Max Character Is 150",
     )
     email = forms.EmailField(max_length=30, required=True, help_text="name@example.com")
 
