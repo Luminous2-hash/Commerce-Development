@@ -76,7 +76,7 @@ def userprofile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your Profile Updated Successfuly!")
+            messages.success(request, "Your Profile Updated Successfully!")
             return redirect(userprofile)
         else:
             messages.error(
