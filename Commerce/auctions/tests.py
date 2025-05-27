@@ -1,16 +1,16 @@
-from django.test import TestCase, override_settings
-
-# models
-from auctions.models import User, UserProfile, Auction
-
-
-# modules
-from base64 import b64decode
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.forms import model_to_dict
-from django.urls import reverse
-import tempfile
 import os
+import shutil
+import tempfile
+from base64 import b64decode
+from io import StringIO
+from pathlib import Path
+
+from auctions.models import Auction, User, UserProfile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
+from django.forms import model_to_dict
+from django.test import TestCase, override_settings
+from django.urls import reverse
 
 
 # An image generator for imagefield
@@ -220,3 +220,77 @@ class UserprofileTest(TestCase):
         # - Checking DataBase didn't get update
         self.userprofile.refresh_from_db()
         self.assertDictEqual(old_userprofile, model_to_dict(self.userprofile))
+
+
+class CleanUpManagementCommandTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        permission = 0o777
+
+        # Creates an empty path for test files
+        cls.default_path = Path(tempfile.gettempdir()).joinpath("cleanup")
+        if cls.default_path.exists():
+            shutil.rmtree(cls.default_path)
+        cls.default_path.mkdir(mode=permission, parents=True, exist_ok=True)
+
+        # default path for auction_images
+        cls.auction_images_path = cls.default_path.joinpath("auction_images")
+        cls.auction_images_path.mkdir(mode=permission, parents=True, exist_ok=True)
+        # default path for profile_avatars
+        cls.profile_images_path = cls.default_path.joinpath("profile_images")
+        cls.profile_images_path.mkdir(mode=permission, parents=True, exist_ok=True)
+
+        cls.file_number = 12
+
+        # Temp files for Test
+        for file_num in range(cls.file_number):
+            with open(
+                cls.auction_images_path.joinpath(f"file{file_num}.png"), "w"
+            ) as f:
+                f.write(f"I'm the file number {file_num}")
+
+            with open(
+                cls.profile_images_path.joinpath(f"file{file_num}.png"), "w"
+            ) as f:
+                f.write(f"I'm the file number {file_num}")
+
+    @override_settings(MEDIA_ROOT=Path(tempfile.gettempdir()).joinpath("cleanup"))
+    def setUp(self):
+        # Database values for Test
+        image = ImageGenerator()
+        self.user = User.objects.create_user(
+            username="username", password="NotSafe1234"
+        )
+        self.userprofile = UserProfile.objects.last()
+        self.userprofile.avatar = image.file()
+        self.userprofile.save()
+        self.auction = Auction.objects.create(
+            owner=self.user, name="auction", picture=image.file(), price=1.1
+        )
+
+    @override_settings(MEDIA_ROOT=Path(tempfile.gettempdir()).joinpath("cleanup"))
+    def test_clean_up_management_command(self):
+        # Calling cleanup to cleanUp and assertign the output for removed images
+        output = StringIO()
+        call_command("cleanup", "--yes", stdout=output)
+        self.assertIn(
+            f"Cleaned Up {self.file_number * 2} abundant images", output.getvalue()
+        )
+        # Calling cleanup to see everything is cleaned up
+        output = StringIO()
+        call_command("cleanup", "--yes", stdout=output)
+        self.assertIn("Already cleanedUp nothing todo!", output.getvalue())
+        # Checking for not abondant files
+        auction_images = tuple(image for image in self.auction_images_path.iterdir())
+        profile_images = tuple(image for image in self.profile_images_path.iterdir())
+
+        self.assertEqual(1, len(auction_images))
+        self.assertEqual(1, len(profile_images))
+        self.assertIn(Path(self.auction.picture.path), auction_images)
+        self.assertIn(Path(self.userprofile.avatar.path), profile_images)
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(cls.default_path, ignore_errors=True)

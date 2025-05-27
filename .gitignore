@@ -1,0 +1,27 @@
+# Django database
+*.sqlite3
+db.sqlite3
+
+# Media uploads
+/media/auction_images
+/media/profile_images
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.env.bak/
+*.env
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
