@@ -47,24 +47,24 @@ UserProfileForm = forms.modelform_factory(
     labels={"avatar": "Edit Avatar"},
 )
 
+
 # Auction Add or Edit Form
 class AuctionForm(forms.ModelForm):
-    
-
     class Meta:
         model = Auction
-        fields=("name", "description", "picture", "price", "category", "status")
+        fields = ("name", "description", "picture", "price", "category", "status")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = kwargs.get("instance", None)
-        
+
         # User Can't Edit Price
         if instance:
-            price = self.fields['price']
+            price = self.fields["price"]
             price.disabled = True
             price.help_text = "Editing Price Is Not Possible!"
-        
+
+
 # For All Choices
 def add_empty_choice(choice_model):
     """
@@ -81,9 +81,6 @@ def add_empty_choice(choice_model):
 
 # Auctions Listing Filters
 class AuctionsListingFiltersForm(forms.Form):
-    max_venues_price = Auction.objects.aggregate(Max("price")).get("price__max", 0)
-    min_venues_price = Auction.objects.aggregate(Min("price")).get("price__min", 0)
-
     category = forms.ChoiceField(
         required=False,
         choices=add_empty_choice(AuctionCategories),
@@ -96,16 +93,24 @@ class AuctionsListingFiltersForm(forms.Form):
     )
     start_price = forms.FloatField(
         required=False,
-        initial=min_venues_price,
-        max_value=max_venues_price,
-        min_value=min_venues_price,
     )
     end_price = forms.FloatField(
         required=False,
-        initial=max_venues_price,
-        max_value=max_venues_price,
-        min_value=min_venues_price,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # retrives highest and lowest of auctions prices
+        max_price = Auction.objects.aggregate(Max("price")).get("price__max", 0)
+        min_price = Auction.objects.aggregate(Min("price")).get("price__min", 0)
+        # start price initial attributes assingment
+        self.fields["start_price"].initial = min_price
+        self.fields["start_price"].min_value = min_price
+        self.fields["start_price"].max_value = max_price
+        # end price initial attributes assignment
+        self.fields["end_price"].initial = max_price
+        self.fields["end_price"].min_value = min_price
+        self.fields["end_price"].max_value = max_price
 
     def clean(self):
         super().clean()
